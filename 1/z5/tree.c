@@ -73,25 +73,32 @@ void printTreeZigZag(TreeNode* root, FILE* file) {
     push_tree_queue(&currentLevel, root);                 // Добавляем корень в очередь текущего уровня
 
     while (!isEmptyTreeQueue(&currentLevel)) {            // Пока очередь текущего уровня не пуста
-        TreeNode* node = pop_tree_queue(&currentLevel);   // Извлекаем узел из очереди текущего уровня
-
-        fprintf(file, "%d ", node->data);                 // Выводим данные узла
-
-        if (leftToRight) {                                // Если вывод слева направо
-            if (node->left) push_tree_queue(&nextLevel, node->left);    // Добавляем левого потомка в очередь следующего уровня
-            if (node->right) push_tree_queue(&nextLevel, node->right);  // Добавляем правого потомка в очередь следующего уровня
-        } else {                                          // Если вывод справа налево
-            if (node->right) push_tree_queue(&nextLevel, node->right);  // Добавляем правого потомка в очередь следующего уровня
-            if (node->left) push_tree_queue(&nextLevel, node->left);    // Добавляем левого потомка в очередь следующего уровня
+        int levelSize = 0;                                // Размер текущего уровня
+        TreeNodeQueue* temp = currentLevel.front;         // Временный указатель на начало очереди
+        while (temp != NULL) {                            // Подсчитываем количество узлов на текущем уровне
+            levelSize++;
+            temp = temp->next;
         }
 
-        if (isEmptyTreeQueue(&currentLevel)) {            // Если текущий уровень закончился
-            leftToRight = !leftToRight;                   // Меняем порядок вывода для следующего уровня
-            TreeQueue temp = currentLevel;                // Меняем очереди местами
-            currentLevel = nextLevel;
-            nextLevel = temp;
-            fprintf(file, "\n");                          // Выводим пустую строку для разделения уровней
+        for (int i = 0; i < levelSize; i++) {              // Проходим по всем узлам текущего уровня
+            TreeNode* node = pop_tree_queue(&currentLevel);  // Извлекаем узел из очереди текущего уровня
+
+            fprintf(file, "%d ", node->data);             // Выводим данные узла
+
+            if (leftToRight) {                            // Если вывод слева направо
+                if (node->left) push_tree_queue(&nextLevel, node->left);    // Добавляем левого потомка в очередь следующего уровня
+                if (node->right) push_tree_queue(&nextLevel, node->right);  // Добавляем правого потомка в очередь следующего уровня
+            } else {                                      // Если вывод справа налево
+                if (node->right) push_tree_queue(&nextLevel, node->right);  // Добавляем правого потомка в очередь следующего уровня
+                if (node->left) push_tree_queue(&nextLevel, node->left);    // Добавляем левого потомка в очередь следующего уровня
+            }
         }
+
+        leftToRight = !leftToRight;                       // Меняем порядок вывода для следующего уровня
+        TreeQueue tempQueue = currentLevel;               // Меняем очереди местами
+        currentLevel = nextLevel;
+        nextLevel = tempQueue;
+        fprintf(file, "\n");                              // Выводим пустую строку для разделения уровней
     }
 }
 
